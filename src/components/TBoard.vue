@@ -13,7 +13,8 @@
 </template>
 
 <script>
-import {SYMBOL} from './strings.js';
+import { SYMBOL } from './strings.js';
+import { ref } from 'vue'
 
 export default {
   name: 'TBoard',
@@ -21,15 +22,10 @@ export default {
     renderData: Array,
     renderTxt: String,
   },
-  data() {
-    return {
-      //data: []
-      blockColor: 'blue'
-    }
-  },
+  setup(props) {
+    const blockColor = ref('green');
 
-  methods: {
-    cellClass(cell) {
+    const cellClass = (cell) => {
       return {
         empty:   cell === SYMBOL.empty,
         borderY: cell === SYMBOL.borderY,
@@ -37,19 +33,22 @@ export default {
         block:   cell === SYMBOL.block,
         full:    cell === SYMBOL.full,        
       }
-    },
-    newBlockEvent() {
-      this.blockColor = this.randomColor();
-    },
-    cellColor(cell) {
-      return {
-        backgroundColor: cell === SYMBOL.block ? this.blockColor : '',
-      }
-    },
-    randomColor() {
-      return "#" + Math.floor(Math.random()*16777215).toString(16)
-    },
-  }
+    };
+
+    const cellColor = (cell) => { { backgroundColor: cell === SYMBOL.block ? blockColor : '' } };
+
+    const newBlockEvent = () => blockColor.value = randomColor();
+
+    const randomColor = () => { "#" + Math.floor(Math.random()*16777215).toString(16) };
+
+    return {
+      blockColor,
+
+      cellClass,cellColor,
+      newBlockEvent, randomColor
+    }
+
+  },
 }
 </script>
 
@@ -107,6 +106,5 @@ export default {
   background-color: black;
   border-radius: 0;
 }
-
 
 </style>
