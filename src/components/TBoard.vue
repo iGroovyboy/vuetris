@@ -23,7 +23,7 @@ export default {
     renderTxt: String,
   },
   setup(props) {
-    const blockColor = ref('green');
+    let blockColor = ref('green');
 
     const cellClass = (cell) => {
       return {
@@ -35,11 +35,11 @@ export default {
       }
     };
 
-    const cellColor = (cell) => { { backgroundColor: cell === SYMBOL.block ? blockColor : '' } };
+    const cellColor = (cell) => { return { backgroundColor: cell === SYMBOL.block ? blockColor.value : '' } };
 
-    const newBlockEvent = () => blockColor.value = randomColor();
+    const newBlockEvent = () => { blockColor.value = randomColor() };
 
-    const randomColor = () => { "#" + Math.floor(Math.random()*16777215).toString(16) };
+    const randomColor = () => "#" + Math.floor(Math.random()*16777215).toString(16) ;
 
     return {
       blockColor,
