@@ -253,7 +253,9 @@ export default {
       const edge = fn.getLevelBordersData(this.levelOfBlock, this.sizeY, this.sizeX, this.topY);
 
       // if block cells are on the edge - dont move block
-      if (edge['left'].includes(SYMBOL.blockMapFull) || edge['right'].includes(SYMBOL.blockMapFull)) {
+      if ('left' === direction && edge['left'].includes(SYMBOL.blockMapFull)) {
+        return false;
+      } else if ('right' === direction && edge['right'].includes(SYMBOL.blockMapFull)) {
         return false;
       }
       
@@ -278,8 +280,6 @@ export default {
       }
 
       const rotatedBlock = fn.rotateMatrixLeft(blockData);
-
-      console.log('rot', rotatedBlock)
       
       //find lowest and leftest point in levelOfBlock - use is as y coord
       const h = rotatedBlock.length,

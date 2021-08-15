@@ -111,12 +111,13 @@ export function hasOverlaps(level, levelOfBlock, SYMBOL, sizeY, sizeX, topY) {
       }
 
       // collision with side borders
-      // isBorderPosition = x === 0 || x === sizeX;
+      // const isBorderPosition = x === 0 || x === sizeX;
       // if (isBorderPosition && currentBlockHere) {
       //   return true;
       // }
 
       if (level[y][x] === SYMBOL.borderY && currentBlockHere) {
+        console.log('|')
         return true;
       }
     }
