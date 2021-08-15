@@ -29,7 +29,7 @@ export default {
   },
   data() {
     return {
-      speed: 800,
+      speed: 300,
       isOn: false,
       playBtnText: '123',
       timer: null,
@@ -38,7 +38,7 @@ export default {
 
       board: '',
       sizeX: 10, 
-      sizeY: 15, 
+      sizeY: 20, 
       topY: 0,
 
       currentBlock: null,
@@ -160,14 +160,17 @@ export default {
       if (!this.currentBlock) {
         const randomBlock = fn.pickRandomBlock(BLOCKS) 
 
+        
+
         this.levelOfBlock = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL)
         this.levelOfBlock = fn.addNewBlockToLOB(randomBlock.data, this.levelOfBlock, this.sizeX, this.topY)
         
         this.currentBlock = randomBlock.name
+        this.currentBlockData = randomBlock.data
 
         this.$refs.board.newBlockEvent();
 
-        //console.log('New Block of type: ' + randomBlock.name)
+        //console.log('New Block of type: ' + randomBlock.name, randomBlock.data)
 
         if (fn.hasOverlaps(this.level, this.levelOfBlock, SYMBOL, this.sizeY, this.sizeX, this.topY)) {
           //gameover coz we have overlaps on top
@@ -275,6 +278,8 @@ export default {
       }
 
       const rotatedBlock = fn.rotateMatrixLeft(blockData);
+
+      console.log('rot', rotatedBlock)
       
       //find lowest and leftest point in levelOfBlock - use is as y coord
       const h = rotatedBlock.length,
@@ -328,8 +333,9 @@ export default {
 
       } else if (e.code === 'ArrowUp' && this.allowRotation) { // e.code === 'Space'
         r = this.rotateBlock(this.currentBlockData || BLOCKS[this.currentBlock])
-        //if (r) this.renderView(); // TODO: 1 bug - when rotating too often block gets up
-        //TODO: 2 bug - extra line blinks below horiz border
+        //if (r) this.renderView(); 
+        // TODO: 1 bug - when rotating too often block gets up
+        // TODO: 2 bug - extra line blinks below horiz border
 
       } else if (e.code === 'ArrowDown') {
         for (let times = 1; times <= 3; times++) {  // TODO: maybe optimize
