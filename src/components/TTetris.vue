@@ -182,9 +182,7 @@ export default {
         this.renderView();
       }
 
-      if (this.maybeDestroyLines()) { 
-        this.renderView();
-      }
+      this.maybeDestroyLines()
 
       return true
     },
