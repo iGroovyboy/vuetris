@@ -29,16 +29,17 @@ export default {
   },
   data() {
     return {
-      speed: 500,
+      speed: 800,
       isOn: false,
       playBtnText: '123',
       timer: null,
       frame: 0,
+      isAnimation: false,
 
       board: '',
       sizeX: 10, 
-      sizeY: 23, 
-      topY: 1,
+      sizeY: 15, 
+      topY: 0,
 
       currentBlock: null,
       currentBlockData: null,
@@ -79,17 +80,18 @@ export default {
 
       this.timer = setInterval(() => {
         if (this.frame === 0) {
-          this.level = this.levelOfBlock = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL);
-        }
-        if(!this.isAnimation){
-          this.runTick();
-          this.board = this.frame;
+          this.level = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL);
+          this.levelOfBlock = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL);
 
-          this.frame++;
-          
-          if (this.isOn === false){
-            clearInterval(this.timer);
-          }
+        }
+
+        this.runTick();
+        this.board = this.frame;
+
+        this.frame++;
+        
+        if (this.isOn === false){
+          clearInterval(this.timer);
         }
         
       }, this.speed); 
@@ -115,7 +117,7 @@ export default {
     renderView() {
       let levelTxt = '', levelArray = [];
       
-      for (let Y = this.topY; Y < this.sizeY; Y++) {
+      for (let Y = this.topY; Y <= this.sizeY; Y++) {
         
         levelArray[Y] = [];
         for (let X = 0; X <= this.sizeX + 1; X++) {
@@ -138,7 +140,7 @@ export default {
           levelArray[Y].push(cellView);
           
           if (X == this.sizeX + 1) {
-            levelTxt += '<br>';
+            levelTxt += '\n';
           }
         }
       }
@@ -150,12 +152,11 @@ export default {
       levelArray.unshift(emptyRow);
       this.renderData = levelArray.filter((el) => el != null);
       
-      // console.clear();
-      // console.log(levelTxt);
+      //console.clear();
+      //console.log(levelTxt);
     },
 
-    runTick() {
-      
+    runTick() {      
       if (!this.currentBlock) {
         const randomBlock = fn.pickRandomBlock(BLOCKS) 
 
@@ -222,11 +223,11 @@ export default {
     maybeDestroyLines() {
       const linesToDestroy = fn.getFullLines(this.level, SYMBOL, this.sizeY, this.sizeX, this.topY);
       
-      if (!linesToDestroy.length) {
+      if (!linesToDestroy.length || this.isAnimation === true) {
         return false;
       }
 
-      console.log('Lines to be removed: ' + linesToDestroy.length, linesToDestroy)
+      console.log('Lines to be removed: ' + linesToDestroy.length, linesToDestroy, this.level);
       
       this.isAnimation = true;
 
@@ -234,6 +235,7 @@ export default {
       
       this.isAnimation = false;
 
+      //console.log('AFTER DESTROY ', this.level);
       this.destroyed += linesToDestroy.length;
 
       return true;
