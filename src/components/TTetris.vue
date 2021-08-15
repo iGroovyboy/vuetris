@@ -2,13 +2,17 @@
   <div>
     <h1>TETRIS</h1>
     <div>
-      <span>Destroyed: {{ destroyed }}</span>
+      <span>Lines: {{ destroyed }}</span>
+      <span>Score: {{ score }}</span>
     </div>
     <div class="zone">
       <TBoard v-bind:renderData="renderData" ref="board" />
     </div>
 
-    <button @click="main()">{{ playBtnText }}</button>
+    <button v-show="!isOn || (!isOn &&!isPause)" @click="main()">{{ playBtnText }}</button>
+    <button v-show="isOn && isPause" @click="main(true)">{{ resumeBtnText }}</button>
+    <button v-show="isOn && !isPause" @click="pauseGame()">{{ pauseBtnText }}</button>
+    <button v-show="isOn" @click="stopGame()">{{ stopBtnText }}</button>
   </div>
 </template>
 
@@ -29,9 +33,13 @@ export default {
   },
   data() {
     return {
-      speed: 300,
+      speed: 500,
       isOn: false,
-      playBtnText: '123',
+      isPause: false,
+      playBtnText: 'Play',
+      pauseBtnText: 'Pause',
+      resumeBtnText: 'Resume',
+      stopBtnText: 'Stop',
       timer: null,
       frame: 0,
       isAnimation: false,
@@ -50,12 +58,13 @@ export default {
 
       renderData: [],
       renderTxt: '',
+
       destroyed: 0,
+      score: 0,
 
     }
   },
   created() {
-      this.playBtnText = STR.PLAYBTN[false];
       console.clear();
   },
   mounted() {
@@ -65,24 +74,35 @@ export default {
     document.removeEventListener("keydown", this.userKeyDown)
   },
   methods: {
-    main() {
-      this.isOn = !this.isOn;
-      this.playBtnText = STR.PLAYBTN[this.isOn];
+    main(resume = false) {
+      this.isOn = true;
 
-      if (this.isOn === false){
+      //if (this.isOn === false){
+      //  clearInterval(this.timer);
+      //  this.frame = 0;
+      //  console.log('Game stopped');
+      //  return;
+      //}
+
+      if (!resume && this.isPause === true){
         clearInterval(this.timer);
-        this.frame = 0;
-        console.log('Game stopped');
+        console.log('Game paused');
         return;
       }
 
-      console.log('Game started');
+      if (resume) {
+        this.isPause = false;  
+      }
+
+      console.log('Game is on!');
 
       this.timer = setInterval(() => {
         if (this.frame === 0) {
           this.level = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL);
           this.levelOfBlock = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL);
-
+          
+          this.destroyed = 0
+          this.score = 0;
         }
 
         this.runTick();
@@ -99,18 +119,27 @@ export default {
 
     // kills interval, etc.
     pauseGame() {
-      this.isOn = false;
-      this.playBtnText = 'PAUSE';
+      this.isPause = true;
       clearInterval(this.timer);
-      console.log('GAME PAUSE'); // todo: add html
+      console.log('GAME PAUSED', this.isPause, this.isOn); // todo: add html
     },
 
     // kills interval, etc.
     stopGame() {
+      clearInterval(this.timer);
+      this.timer = null;
+
       this.isOn = false;
       this.frame = 0;
-      clearInterval(this.timer);
-      console.log('GAME !!'); // todo: add html
+      this.speed = 500;
+
+      this.level = fn.createEmptyLevel(this.sizeX, this.sizeY, this.topY, SYMBOL);
+      this.levelOfBlock = [];
+      this.currentBlock = null;
+      this.currentBlockData = null;
+      this.renderView();
+
+      console.log('Game Stoped'); // todo: add html
     },
 
 
@@ -239,7 +268,21 @@ export default {
       //console.log('AFTER DESTROY ', this.level);
       this.destroyed += linesToDestroy.length;
 
+      this.score += this.calcScore(linesToDestroy.length)
+
       return true;
+    },
+
+    calcScore(lines) {
+      const scoreMap = {
+        1: 100,
+        2: 300,
+        3: 500,
+        4: 1000,
+        5: 2000
+      };
+
+      return scoreMap[lines];
     },
 
     // left/-1 right/1 null/0
@@ -331,7 +374,7 @@ export default {
 
       } else if (e.code === 'ArrowUp' && this.allowRotation) { // e.code === 'Space'
         r = this.rotateBlock(this.currentBlockData || BLOCKS[this.currentBlock])
-        //if (r) this.renderView(); 
+        if (r) this.renderView(); 
         // TODO: 1 bug - when rotating too often block gets up
         // TODO: 2 bug - extra line blinks below horiz border
 
@@ -350,8 +393,6 @@ export default {
     }
   
   }
-
-  
   
 }
 </script>
