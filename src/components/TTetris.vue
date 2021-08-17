@@ -2,17 +2,16 @@
   <div>
     <h1>TETRIS</h1>
     <div>
-      <span>Lines: {{ destroyed }}</span>
-      <span>Score: {{ score }}</span>
+      <span class="score">Score: {{ score }}</span>
     </div>
     <div class="zone">
       <TBoard v-bind:renderData="renderData" ref="board" />
     </div>
 
-    <button v-show="!isOn || (!isOn &&!isPause)" @click="main()">{{ playBtnText }}</button>
-    <button v-show="isOn && isPause" @click="main(true)">{{ resumeBtnText }}</button>
-    <button v-show="isOn && !isPause" @click="pauseGame()">{{ pauseBtnText }}</button>
-    <button v-show="isOn" @click="stopGame()">{{ stopBtnText }}</button>
+    <button class="btn" v-show="!isOn || (!isOn &&!isPause)" @click="main()">{{ playBtnText }}</button>
+    <button class="btn" v-show="isOn && isPause" @click="main(true)">{{ resumeBtnText }}</button>
+    <button class="btn" v-show="isOn && !isPause" @click="pauseGame()">{{ pauseBtnText }}</button>
+    <button class="btn" v-show="isOn" @click="stopGame()">{{ stopBtnText }}</button>
   </div>
 </template>
 
@@ -94,6 +93,8 @@ export default {
         this.isPause = false;  
       }
 
+      this.$refs.board.gamePlayEvent();
+
       console.log('Game is on!');
 
       this.timer = setInterval(() => {
@@ -121,11 +122,14 @@ export default {
     pauseGame() {
       this.isPause = true;
       clearInterval(this.timer);
+      this.$refs.board.gamePauseEvent();
       console.log('GAME PAUSED', this.isPause, this.isOn); // todo: add html
     },
 
     // kills interval, etc.
     stopGame() {
+      this.$refs.board.gameStopEvent();
+
       clearInterval(this.timer);
       this.timer = null;
 
@@ -137,7 +141,7 @@ export default {
       this.levelOfBlock = [];
       this.currentBlock = null;
       this.currentBlockData = null;
-      this.renderView();
+      // this.renderView();
 
       console.log('Game Stoped'); // todo: add html
     },
@@ -239,6 +243,8 @@ export default {
         this.currentBlock = null;
         this.levelOfBlock = [];
 
+        this.$refs.board.collisionEvent();
+
         return false;
       }
       
@@ -269,6 +275,7 @@ export default {
       this.destroyed += linesToDestroy.length;
 
       this.score += this.calcScore(linesToDestroy.length)
+      this.$refs.board.scoreEvent();
 
       return true;
     },
@@ -398,11 +405,30 @@ export default {
 </script>
 
 <style scoped>
+html {
+  background: rgb(247,247,247);
+  background: radial-gradient(circle, rgba(247,247,247,1) 0%, rgba(209,209,209,1) 100%); 
+}
+
 .zone {
   width: 190px;
   height: 400px;
   margin: 10px auto;
-  margin-bottom: 20px;
   padding: 0;
 }
+
+.score {
+  font-size: 1.2rem;
+}
+
+.btn {
+  background-color: orange;
+  border: 2px solid black;
+  padding: 5px 20px;
+  margin: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+
 </style>
